@@ -68,38 +68,6 @@ std::vector<bool> eratosthenes_sieve(int n) {
     return result;
 }
 
-std::vector<bool> sieve_2(std::vector<bool>& sieve) {
-    auto result = std::vector<bool>(sieve.size());
-    for (size_t i = 0; i < result.size() - 2; ++i) {
-        result[i] = sieve[i] || sieve[i + 2];
-    }
-    for (size_t i = result.size() - 1; i > 1; --i) {
-        result[i] = result[i] && result[i - 2];
-    }
-    return result;
-}
-
-std::vector<bool> sieve_3(std::vector<bool>& sieve) {
-    auto result = std::vector<bool>(sieve.size());
-    for (size_t i = 0; i < result.size() - 6; ++i) {
-        result[i] = sieve[i] || sieve[i + 2] || sieve[i + 6];
-    }
-    for (size_t i = result.size() - 1; i > 5; --i) {
-        result[i] = result[i] && result[i - 2] && result[i - 6];
-    }
-    return result;
-}
-std::vector<bool> sieve_4(std::vector<bool>& sieve) {
-    auto result = std::vector<bool>(sieve.size());
-    for (size_t i = 0; i < result.size() - 8; ++i) {
-        result[i] = sieve[i] || sieve[i + 2] || sieve[i + 6] || sieve[i + 8];
-    }
-    for (size_t i = result.size() - 1; i > 7; --i) {
-        result[i] = result[i] && result[i - 2] && result[i - 6] && result[i - 8];
-    }
-    return result;
-}
-
 std::vector<bool> squares(int n) {
     std::vector<bool> result(n);
     int64_t nn = n;
@@ -122,10 +90,15 @@ int main()
 {
     BITMAPFILEHEADER BitmapFileHeader;
     BITMAPINFOHEADER BitmapInfoHeader;
-    BYTE buf = 0;
-    LONG Width = 2100;
-    LONG Height = 1181;
+    RGBTRIPLE Green, Black, Blue, Yellow, Red, White, DarkBlue;
+    BYTE buf;
+    LONG Width;
+    LONG Height;
     LONG EWidth;
+    int i, j, k;
+    buf = 0;
+    Width = 1999;
+    Height = 1125;
     EWidth = Width * sizeof(RGBTRIPLE);
     while (EWidth % 4 != 0) ++EWidth;
     int tail = EWidth - Width * sizeof(RGBTRIPLE);
@@ -152,7 +125,7 @@ int main()
     BitmapInfoHeader.biXPelsPerMeter = 0;
     BitmapInfoHeader.biYPelsPerMeter = 0;
     FILE* stream;
-    stream = fopen("eratosthenes_regreg.bmp", "w");
+    stream = fopen("prime_twins.bmp", "w");
     if (stream == NULL)
     {
         std::cout << "Ошибка открытия файла для записи" << std::endl;
@@ -167,50 +140,41 @@ int main()
     fwrite(&BitmapInfoHeader, sizeof(BITMAPINFOHEADER), 1, stream);
 
     auto is_compose = eratosthenes_sieve(Height * Width);
-    //auto is_not_twin = sieve_2(is_compose);
-    //auto is_not_triple = sieve_3(is_compose);
-    //auto is_not_quadruple = sieve_4(is_compose);
-    //auto is_square = squares(Height * Width);
+    auto is_square = squares(Height * Width);
     auto is_dec_cube = dec_cubes(Height * Width);
 
-    auto Green = RGBTRIPLE{ 0, 255, 0 };
-    auto DarkGreen = RGBTRIPLE{ 0, 64, 0 };
-    auto Black = RGBTRIPLE{ 0, 0, 0 };
-    auto Blue = RGBTRIPLE{ 255, 0, 0 };
-    auto Yellow = RGBTRIPLE{ 0, 255, 255 };
-    auto Red = RGBTRIPLE{ 0, 0, 255 };
-    auto White = RGBTRIPLE{ 255, 255, 255 };
-    auto DarkBlue = RGBTRIPLE{ 128, 0, 0 };
-    auto Cyan = RGBTRIPLE{ 255, 255, 0 };
-    auto Celesta = RGBTRIPLE{ 255, 128, 0 };
-    auto LightBlue = RGBTRIPLE{ 255, 64, 0 };
-    auto Orange = RGBTRIPLE{ 0, 85, 255 };
-    auto Purple = RGBTRIPLE{ 255, 0, 255 };
-    auto Emerald = RGBTRIPLE{ 64, 192, 0 };
+    Green = RGBTRIPLE{ 0, 255, 0 };
+    Black = RGBTRIPLE{ 0, 0, 0 };
+    Blue = RGBTRIPLE{ 255, 0, 0 };
+    Yellow = RGBTRIPLE{ 0, 255, 255 };
+    Red = RGBTRIPLE{ 0, 0, 255 };
+    White = RGBTRIPLE{ 255, 255, 255 };
+    DarkBlue = RGBTRIPLE{ 128, 0, 0 };
 
     int index = 0;
     
-    for (int i = 0; i < Height; i++)
+    for (i = 0; i < Height; i++)
     {
-        for (int j = 0; j < Width; j++) {
-            //if (!is_not_quadruple[index]) {
-            //    fwrite(&Yellow, sizeof(RGBTRIPLE), 1, stream);
-            //}
-            //else if (!is_not_triple[index]) {
-            //    fwrite(&Red, sizeof(RGBTRIPLE), 1, stream);
-            //}
-            //else if (!is_not_twin[index]) {
-            //    fwrite(&LightBlue, sizeof(RGBTRIPLE), 1, stream);
-            //}
-            /*else */ if (!is_compose[index]) {
-                fwrite(&Green, sizeof(RGBTRIPLE), 1, stream);
+        for (j = 0; j < Width; j++) {
+            if (!is_square[index]) {
+                if (!is_dec_cube[index]) {
+                    if (is_compose[index]) {
+                        fwrite(&Black, sizeof(RGBTRIPLE), 1, stream);
+                    }
+                    else {
+                        fwrite(&Blue, sizeof(RGBTRIPLE), 1, stream);
+                    }
+                }
+                else {
+                    fwrite(&Green, sizeof(RGBTRIPLE), 1, stream);
+                }
             }
             else {
-                fwrite(&Black, sizeof(RGBTRIPLE), 1, stream);
+                fwrite(&Yellow, sizeof(RGBTRIPLE), 1, stream);
             }
             ++index;
         }
-        for (int k = 0; k < tail; k++)
+        for (k = 0; k < tail; k++)
         {
             fwrite(&buf, sizeof(BYTE), 1, stream);
         }
